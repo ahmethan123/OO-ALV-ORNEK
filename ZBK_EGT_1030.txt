@@ -1,0 +1,26 @@
+
+*&---------------------------------------------------------------------*
+*& Report ZBK_EGT_1030
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT ZBK_EGT_1030.
+
+INCLUDE zbk_egt_1030_TOP.
+INCLUDE zbk_egt_1030_PBO.
+INCLUDE zbk_egt_1030_PAI.
+INCLUDE zbk_egt_1030_FRM.
+
+
+
+
+START-OF-SELECTION.
+
+perform get_data.
+perform set_fcat.
+perform layout_alv.
+
+
+
+
+call SCREEN 0100 .

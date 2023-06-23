@@ -1,0 +1,252 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZBK_EGT_1030_FRM
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  DISPLAY_ALV
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form display_alv .
+
+*  create OBJECT go_cont
+*  exporting
+*
+*    container_name              =     'CC_ALV'.
+
+
+*create OBJECT go_alv
+*  exporting
+*    i_parent          =     go_cont.
+
+  if go_alv IS initial .
+    create object go_alv
+      exporting
+        i_parent = cl_gui_container=>screen0.
+
+    perform set_dropdown.
+
+    call method go_alv->set_table_for_first_display
+      exporting
+**    i_buffer_active               =
+**    i_bypassing_buffer            =
+**    i_consistency_check           =
+*       i_structure_name              =    'SCARR'
+**    is_variant                    =
+**    i_save                        =
+**    i_default                     = 'X'
+        is_layout       = gs_layout
+**    is_print                      =
+**    it_special_groups             =
+**    it_toolbar_excluding          =
+**    it_hyperlink                  =
+**    it_alv_graphics               =
+**    it_except_qinfo               =
+**    ir_salv_adapter               =
+      changing
+        it_outtab       = gt_scarr
+        it_fieldcatalog = gt_fcat.
+*    it_sort                       =
+*    it_filter                     =
+*  exceptions
+*    invalid_parameter_combination = 1
+*    program_error                 = 2
+*    too_many_lines                = 3
+*    others                        = 4
+
+    call method go_alv->register_edit_event
+      exporting
+        i_event_id = cl_gui_alv_grid=>mc_evt_enter.
+
+  else  .
+    call method go_alv->refresh_table_display.
+  endif.
+
+
+endform.
+
+*&---------------------------------------------------------------------*
+*&      Form  GET_DATA
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form get_data .
+  select * from scarr
+    into corresponding fields of table gt_scarr.
+
+*LOOP AT gt_scarr ASSIGNING <gfs_scarr>.
+*
+*<gfs_scarr>-durum = '@11@' .
+*
+*ENDLOOP.
+endform.
+*&---------------------------------------------------------------------*
+*&      Form  SET_FCAT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form set_fcat .
+
+  clear gs_fcat.
+  gs_fcat-fieldname = 'DURUM'.
+  gs_fcat-scrtext_l = 'BUTON'.
+  gs_fcat-scrtext_m = 'BUTON'.
+  gs_fcat-scrtext_s = 'BUTON'.
+  append gs_fcat to gt_fcat.
+
+
+  clear gs_fcat.
+  gs_fcat-fieldname = 'CARRID'.
+  gs_fcat-scrtext_l = 'Havayolu şirketinin kısa tanımı'.
+  gs_fcat-scrtext_m = 'Havayolu şir tanımı'.
+  gs_fcat-scrtext_s = 'Havayolu T.'.
+  append gs_fcat to gt_fcat.
+
+  clear gs_fcat.
+  gs_fcat-fieldname = 'CARRNAME'.
+  gs_fcat-scrtext_l = 'Havayolu şirketinin İsmi'.
+  gs_fcat-scrtext_m = 'Havayolu İsim'.
+  gs_fcat-scrtext_s = 'Havayolu İ.'.
+
+  append gs_fcat to gt_fcat.
+
+  clear gs_fcat.
+  gs_fcat-fieldname = 'CURRCODE'.
+  gs_fcat-scrtext_l = 'Havayolu şirketinin para birimi'.
+  gs_fcat-scrtext_m = 'Havayolu PB'.
+  gs_fcat-scrtext_s = 'Havayolu PB'.
+
+  append gs_fcat to gt_fcat.
+
+  clear gs_fcat.
+  gs_fcat-fieldname = 'URL'.
+  gs_fcat-scrtext_l = 'Havayolu şirketinin URL si'.
+  gs_fcat-scrtext_m = 'Havayolu şiket URL'.
+  gs_fcat-scrtext_s = 'Havayolu URL'.
+  gs_fcat-col_opt =  abap_true .
+  gs_fcat-hotspot =  abap_true .
+  append gs_fcat to gt_fcat.
+
+  clear gs_fcat.
+  gs_fcat-fieldname = 'COST'.
+  gs_fcat-scrtext_l = 'FİYAT'.
+  gs_fcat-scrtext_m = 'FİYAT'.
+  gs_fcat-scrtext_s = 'FİYAT'.
+  gs_fcat-edit =  abap_true .
+  append gs_fcat to gt_fcat.
+
+  clear gs_fcat.
+  gs_fcat-fieldname = 'LOCATION'.
+  gs_fcat-scrtext_l = 'Lokasyon'.
+  gs_fcat-scrtext_m = 'Lokasyon'.
+  gs_fcat-scrtext_s = 'Lokasyon'.
+  gs_fcat-edit =  abap_true .
+  gs_fcat-drdn_hndl = 1.
+  append gs_fcat to gt_fcat.
+
+
+
+
+
+
+
+endform.
+*&---------------------------------------------------------------------*
+*&      Form  LAYOUT_ALV
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form layout_alv .
+  gs_layout-cwidth_opt = abap_true.
+  gs_layout-zebra = abap_true.
+
+endform.
+*&---------------------------------------------------------------------*
+*&      Form  GET_TOTAL_SUM
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form get_total_sum.
+  data : lv_ttl_sum type int4,
+         lv_lines   type int4,
+         lv_avr     type int4.
+
+
+
+  loop at gt_scarr into gs_scarr .
+    lv_ttl_sum = lv_ttl_sum + gs_scarr-cost.
+  endloop.
+
+  describe table gt_scarr lines lv_lines .
+
+  lv_avr = lv_ttl_sum / lv_lines.
+
+  loop at gt_scarr assigning <gfs_scarr> .
+
+    if <gfs_scarr>-cost > lv_avr.
+      <gfs_scarr>-durum = '@5B@' .
+
+
+    elseif <gfs_scarr>-cost = lv_avr.
+      <gfs_scarr>-durum = '@5C@' .
+
+
+    elseif <gfs_scarr>-cost < lv_avr.
+      <gfs_scarr>-durum = '@5D@' .
+
+
+    endif.
+
+
+
+
+  endloop.
+
+
+
+
+
+endform.
+*&---------------------------------------------------------------------*
+*&      Form  SET_DROPDOWN
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+form set_dropdown .
+  data: lt_dropdown type lvc_t_drop,
+        ls_dropdown type lvc_s_drop.
+
+  clear : ls_dropdown-handle .
+  ls_dropdown-handle = 1.
+  ls_dropdown-value = 'Yurt içi'.
+  append ls_dropdown to lt_dropdown .
+
+  clear : ls_dropdown-handle .
+  ls_dropdown-handle = 1.
+  ls_dropdown-value = 'Yurt dışı'.
+  append ls_dropdown to lt_dropdown.
+
+  go_alv->set_drop_down_table(
+    exporting
+      it_drop_down       =     lt_dropdown
+
+  ).
+
+endform.

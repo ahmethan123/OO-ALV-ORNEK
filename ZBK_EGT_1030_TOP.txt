@@ -1,0 +1,30 @@
+
+*&---------------------------------------------------------------------*
+*&  Include           ZBK_EGT_1030_TOP
+*&---------------------------------------------------------------------*
+
+type-POOLs icon.
+
+DATA : go_alv type REF TO cl_gui_alv_grid,
+       go_cont type REF TO cl_gui_custom_container.
+
+DATA : lv_modi type lvc_s_modi.
+
+
+TYPES : BEGIN OF gty_scarr ,
+        durum type ıcon_d,
+        carrid TYPE s_carr_id,
+        carrname TYPE s_carrname,
+        carrcod TYPE s_currcode,
+        url TYPE s_carrurl,
+        cost TYPE int4,
+        location type char20,
+  end of gty_scarr.
+
+ DATA :      gt_scarr type TABLE OF gty_scarr.
+ DATA :      gs_scarr type  gty_scarr,
+             gt_fcat TYPE lvc_t_fcat,
+             gs_fcat TYPE lvc_s_fcat.
+
+ DATA :      gs_layout TYPE lvc_s_layo.
+ FIELD-SYMBOLS : <gfs_scarr> TYPE gty_scarr.
